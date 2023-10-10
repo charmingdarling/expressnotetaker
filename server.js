@@ -47,8 +47,6 @@ app.use(express.static("public"));
 
 // We can send a body parameter to the client using the res.send() method. This body parameter can be a string, buffer, or even an array.
 
-console.log("Current working directory:", __dirname);
-
 // GET route for index
 app.get("/", (req, res) =>
   res.sendFile(path.join(__dirname, "./public/index.html"))
