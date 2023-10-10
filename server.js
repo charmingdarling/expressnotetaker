@@ -1,11 +1,15 @@
 // Import Express.js
 const express = require("express");
 
-// Import uuid package to create unique ids for each note, need to specify the version of uuid to use
+// Import uuid package to create unique ids for each note
+// Need to specify the version of uuid to use
 const { v4: uuidv4 } = require("uuid");
 
 // Import database file
 const db = require("./db/db.json");
+
+// Import filestystem module to read/write to files
+const fs = require("fs");
 
 // Import built-in Node.js package 'path' to resolve path files that are located on the server
 // Creating file paths from functions normalize all arguments into a single path string (ie: .join() merges the arguments together to construct the path string)
@@ -49,8 +53,6 @@ app.get("/", (req, res) => res.send("Navigate to /notes.html"));
 // Create Express.js routes for '/notes' endpoint - Notes Route
 // Create a get request for all `/notes` that logs when a user visits that route
 
-// * Do I need to use /api/notes or just /notes? It doesn't work for /api/notes
-
 // GET = Read
 app.get("/notes", (req, res) => {
   console.info(`${req.method} request received to get notes`);
@@ -58,7 +60,6 @@ app.get("/notes", (req, res) => {
   return res.json(db);
 });
 
-//! Is this correct? Is /api/notes the correct endpoint or is it redundant to /notes? Should I get rid of this?
 // Create Express.js routes for '/api/notes' endpoint - API Route
 app.get("/notes", (req, res) =>
   res.sendFile(path.join(__dirname, "db/db.json"))
@@ -75,7 +76,7 @@ app.post("/api/notes", async (req, res) => {
   // Check if there is a title and text in the request body
   if (req.body.title && req.body.text) {
     // parse the data to get an array of objects, reading the existing data you have in the db.json file
-    const data = await fs.readFile("./db/db.json", "utf8");
+    const data = fs.readFileSync("./db/db.json", "utf8");
     // Array of objects from the db.json file
     const notes = JSON.parse(data);
 
@@ -99,12 +100,13 @@ app.post("/api/notes", async (req, res) => {
     const newNote = {
       title: req.body.title,
       text: req.body.text,
-      id: uuidv4(), // This creates a unique id for each note
+      // This creates a unique id for each note
+      id: uuidv4(),
     };
     notes.push(newNote); // Push the new note object onto the existing array of note objects
 
     // Save/Write the updated array of note objects back to the db.json file
-    await fs.writeFile("./db/db.json", JSON.stringify(notes));
+    fs.writeFileSync("./db/db.json", JSON.stringify(notes));
 
     // Assign the db.json file to the response object
     responseToClient = {
