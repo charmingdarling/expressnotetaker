@@ -168,6 +168,50 @@ app.post("/api/notes", async (req, res) => {
   }
 });
 
+app.delete("/api/notes/:id", (req, res) => {
+  // Log DELETE request received
+  console.info(`${req.method} request received to delete a note`);
+
+  // Attempt to read the file and parse JSON
+  try {
+    // parse the data to get an array of objects, reading the existing data you have in the db.json file
+    const data = fs.readFileSync("./db/db.json", "utf8");
+    // Array of objects from the db.json file
+    let notes = JSON.parse(data);
+
+    // Find the index of the note with the specified id
+    const noteIndex = notes.findIndex((note) => note.id === req.params.id);
+
+    // Check if the note with the specified id was found
+    if (noteIndex !== -1) {
+      // Remove the note from the array
+      notes.splice(noteIndex, 1);
+
+      // Save/Write the updated array of note objects back to the db.json file
+      fs.writeFileSync("./db/db.json", JSON.stringify(notes));
+
+      // Respond with a success message
+      res.json({ status: "success", message: "Note deleted successfully" });
+    } else {
+      // If note with specified id was not found, send a 404 error response
+      res.status(404).json({ error: "Note not found" });
+    }
+  } catch (error) {
+    console.error("Error deleting note:", error);
+
+    // Handle the error with an if-else statement
+
+    // If there is an error, send a 500 error response to the client
+    if (error.code === "ENOENT") {
+      // Handle file not found error
+      res.status(404).json({ error: "File not found" });
+    } else {
+      // Handle any other error
+      res.status(500).json({ error: error.message });
+    }
+  }
+});
+
 // listen() method responsible for listening to incoming connections on a specific port
 app.listen(PORT, () =>
   console.log(`Example app listening at http://localhost:${PORT}`)
