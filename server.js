@@ -47,25 +47,69 @@ app.use(express.static("public"));
 
 // We can send a body parameter to the client using the res.send() method. This body parameter can be a string, buffer, or even an array.
 
-// Create Express.js routes for default '/' endpoint- Root Route
-app.get("/", (req, res) => res.send("Navigate to /notes.html"));
+console.log("Current working directory:", __dirname);
+
+// GET route for index
+app.get("/", (req, res) =>
+  res.sendFile(path.join(__dirname, "./public/index.html"))
+);
+
+// res.sendFile(path.resolve(__dirname, "./public/notes.html"));
+
+// GET route for notes page
+app.get("/notes", (req, res) =>
+  // res.sendFile(path.join(__dirname, "../notes.html"))
+  res.sendFile(path.resolve(__dirname, "./public/notes.html"))
+);
+
+// // Create Express.js routes for default '/' endpoint- Root Route
+// app.get("/", (req, res) => res.send("Navigate to /notes.html"));
+
+// ? I need a path that will connect the paths
+
+// app.status(404).send("404 Error: Page not found");
 
 // Create Express.js routes for '/notes' endpoint - Notes Route
 // Create a get request for all `/notes` that logs when a user visits that route
 
+// * How do I get the notes to display on the page?
+
 // GET = Read
-app.get("/notes", (req, res) => {
+app.get("/api/notes", (req, res) => {
   console.info(`${req.method} request received to get notes`);
-  // Sending all notes to client from db in json format (title and text)
-  return res.json(db);
+
+  // Attempt to read the file and parse JSON
+  try {
+    // parse the data to get an array of objects, reading the existing data you have in the db.json file
+    const data = fs.readFileSync("./db/db.json", "utf8");
+    // Array of objects from the db.json file
+    const notes = JSON.parse(data);
+    // Sending all notes to client from db in json format (title and text)
+    res.json(notes);
+  } catch (error) {
+    console.error("Error reading notes:", error);
+
+    // Handle the error with an if-else statement
+
+    // If there is an error, send a 500 error response to the client
+
+    if (error.code === "ENOENT") {
+      // Handle file not found error
+      res.status(404).json({ error: "File not found" });
+    } else {
+      // Handle any other error
+      res.status(500).json({ error: error.message });
+    }
+  }
 });
 
-// Create Express.js routes for '/api/notes' endpoint - API Route
-app.get("/notes", (req, res) =>
-  res.sendFile(path.join(__dirname, "db/db.json"))
-);
+// // Create Express.js routes for '/api/notes' endpoint - API Route
+// app.get("/notes", (req, res) =>
+//   res.sendFile(path.join(__dirname, "db/db.json"))
+// );
 
 // * I think I have to make a post request to the server to save the note to the db.json file ?
+
 // POST = Create
 app.post("/api/notes", async (req, res) => {
   // Log POST request received
