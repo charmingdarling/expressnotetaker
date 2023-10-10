@@ -1,6 +1,9 @@
 // Import Express.js
 const express = require("express");
 
+// Import uuid package to create unique ids for each note, need to specify the version of uuid to use
+const { v4: uuidv4 } = require("uuid");
+
 // Import database file
 const db = require("./db/db.json");
 
@@ -80,7 +83,7 @@ app.post("/api/notes", async (req, res) => {
     // JSON Parse notes = [{title: "Test Title", text: "Test text", id: "0"}]
     // Pretend JSON.parse = cutting a fish to turn it into ingredients to cook with
     // JSON.stringify = cooking the ingredients to turn it into a meal
-    // const ingredients = `{"stock": "fishbones", "fry": "rightFillet", "bake": "leftFillet"}`;
+    // const ingredients = `{"stock": "fishBones", "fry": "rightFillet", "bake": "leftFillet"}`;
     // const recipe = JSON.parse(ingredients);
     // ?
     // JSON.parse = take apart the .json file/package to access the objects/components
@@ -96,7 +99,7 @@ app.post("/api/notes", async (req, res) => {
     const newNote = {
       title: req.body.title,
       text: req.body.text,
-      id: db.length.toString(),
+      id: uuidv4(), // This creates a unique id for each note
     };
     notes.push(newNote); // Push the new note object onto the existing array of note objects
 
