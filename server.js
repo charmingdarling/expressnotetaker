@@ -73,7 +73,25 @@ app.post("/api/notes", async (req, res) => {
   if (req.body.title && req.body.text) {
     // parse the data to get an array of objects, reading the existing data you have in the db.json file
     const data = await fs.readFile("./db/db.json", "utf8");
-    const notes = JSON.parse(data); // array of objects
+    // Array of objects from the db.json file
+    const notes = JSON.parse(data);
+
+    // ? A La Clarice -
+    // JSON Parse notes = [{title: "Test Title", text: "Test text", id: "0"}]
+    // Pretend JSON.parse = cutting a fish to turn it into ingredients to cook with
+    // JSON.stringify = cooking the ingredients to turn it into a meal
+    // const ingredients = `{"stock": "fishbones", "fry": "rightFillet", "bake": "leftFillet"}`;
+    // const recipe = JSON.parse(ingredients);
+    // ?
+    // JSON.parse = take apart the .json file/package to access the objects/components
+    // const data = await fs.readFile("./db/db.json", "utf8"); (destructuring)
+    // const notes = JSON.parse(data);
+    // ?
+    //
+    // const newIngredient = {"grill": "cheeks"};
+    // ingredients.push(newIngredient);
+    // fs.writeFile("./db/db.json", JSON.stringify(ingredients)); (restructuring)
+
     // Create a new note object with the properties title, text, and id
     const newNote = {
       title: req.body.title,
