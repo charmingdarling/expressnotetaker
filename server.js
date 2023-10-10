@@ -5,6 +5,23 @@ const express = require("express");
 const db = require("./db/db.json");
 
 // Import built-in Node.js package 'path' to resolve path files that are located on the server
+// Creating file paths from functions normalize all arguments into a single path string (ie: .join() merges the arguments together to construct the path string)
+// Path to THIS file (server.js) is stored in __dirname (ie.path.join(__dirname, "public/notes.html") will return the path to the notes.html file, merging two paths together)
+// path.resolve will return the absolute path to the notes.html file
+
+//? Clarice: Harry Potter Moving Staircases Analogy
+
+// path.dirname(__filename) = The Hogwarts Staircase, Options Galore (public, db, etc.)
+
+// path.dirname is the path to the directory of the file, the floor of the current staircase
+// Like if you're trying to go to Divination or Astrology, since they go to (/ = to) the same floor, you can just say "Divination" or "Astrology" instead of "path.CosmologyStaircase/Divination" or "path.CosmologyStaircase/Astrology"
+
+// params is what is passed to the function, not the actual path itself, it gives you directions to the path - params is like the stairs
+// path.join(__dirname, "public/notes.html") = Hogwarts moving staircase
+// path.resolve(__dirname, "public/notes.html") = Forbidden 3rd floor Classroom
+// "/public/" is the corridor
+// "notes.html" is the classroom
+
 const path = require("path");
 
 // Initialize an instance of Express.js
@@ -18,6 +35,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Static middleware pointing to the public folder
+// Because you declare the static middleware before your routes, Express will serve this file automatically and you do not have to declare a route for it in your application. (get/post/put/delete)
 app.use(express.static("public"));
 
 // We can send a body parameter to the client using the res.send() method. This body parameter can be a string, buffer, or even an array.
@@ -45,26 +63,27 @@ app.get("/notes", (req, res) =>
 
 // * I think I have to make a post request to the server to save the note to the db.json file ?
 // POST = Create
-app.post("/api/notes", (req, res) => {
-  // Log POST request recieved
+app.post("/api/notes", async (req, res) => {
+  // Log POST request received
   console.info(`${req.method} request received to add a note`);
   // Prep a response object to send back to the client
   let responseToClient;
 
   // Check if there is a title and text in the request body
   if (req.body.title && req.body.text) {
+    // parse the data to get an array of objects, reading the existing data you have in the db.json file
+    const data = await fs.readFile("./db/db.json", "utf8");
+    const notes = JSON.parse(data); // array of objects
     // Create a new note object with the properties title, text, and id
     const newNote = {
       title: req.body.title,
       text: req.body.text,
       id: db.length.toString(),
     };
-    res.json(`Note for ${responseToClient.body.title} added successfully`);
-  } else {
-    res.json(`Error in adding note`);
+    notes.push(newNote); // Push the new note object onto the existing array of note objects
 
-    // Add the new note object to the db.json file
-    db.push(newNote);
+    // Save/Write the updated array of note objects back to the db.json file
+    await fs.writeFile("./db/db.json", JSON.stringify(notes));
 
     // Assign the db.json file to the response object
     responseToClient = {
@@ -72,13 +91,16 @@ app.post("/api/notes", (req, res) => {
       body: newNote,
     };
 
-    // Log the response body to the console.
-    console.log(responseToClient.body);
-
-    // Send the response object back to the client
+    // Send the success response object back to client
     res.json(responseToClient);
+  } else {
+    let newNote;
+
+    // If the request body is missing one of the two required properties, send a 400 error back to the client
+    res
+      .status(400)
+      .json({ error: "Please enter a title and text for your note." });
   }
-  res.json(path.join(__dirname, "public/notes.html"));
 });
 
 // listen() method responsible for listening to incoming connections on a specific port
