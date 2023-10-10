@@ -9,6 +9,7 @@
   "author": "Kim Nguyen",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.3.1",
     "express": "^4.16.4",
     "nodemon": "^3.0.1",
     "uuid": "^9.0.1"

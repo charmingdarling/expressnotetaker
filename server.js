@@ -8,8 +8,11 @@ const { v4: uuidv4 } = require("uuid");
 // Import database file
 const db = require("./db/db.json");
 
-// Import filestystem module to read/write to files
+// Import filesystem module to read/write to files
 const fs = require("fs");
+
+// Loads in the package, on the package we call the config() method, which loads the env file for Heroku, we don't need it locally
+require("dotenv").config();
 
 // Import built-in Node.js package 'path' to resolve path files that are located on the server
 // Creating file paths from functions normalize all arguments into a single path string (ie: .join() merges the arguments together to construct the path string)
@@ -19,6 +22,10 @@ const fs = require("fs");
 //? Clarice: Harry Potter Moving Staircases Analogy
 
 // path.dirname(__filename) = The Hogwarts Staircase, Options Galore (public, db, etc.)
+// // __filename in this instance is server.js
+console.log("__dirname", __dirname); // Absolute path to the directory that the file is executing in
+console.log("__filename", __filename); // Absolute path to the FILE that is executed
+console.log("current working directory", process.cwd()); // cwd always points at the root directory we are in, sometimes similar to __dirname
 
 // path.dirname is the path to the directory of the file, the floor of the current staircase
 // Like if you're trying to go to Divination or Astrology, since they go to (/ = to) the same floor, you can just say "Divination" or "Astrology" instead of "path.CosmologyStaircase/Divination" or "path.CosmologyStaircase/Astrology"
@@ -35,7 +42,8 @@ const path = require("path");
 const app = express();
 
 // Specify on which port the Express.js server will run
-const PORT = 3002;
+// process.env.PORT -> For Heroku, because it won't let you set your own port, pick up env variable IF it exists OR 3002
+const PORT = process.env.PORT || 3002;
 
 // Middleware for parsing JSON and urlencoded form data
 app.use(express.json());
@@ -67,10 +75,8 @@ app.get("/notes", (req, res) =>
 
 // app.status(404).send("404 Error: Page not found");
 
-// Create Express.js routes for '/notes' endpoint - Notes Route
-// Create a get request for all `/notes` that logs when a user visits that route
-
-// * How do I get the notes to display on the page?
+// Create Express.js routes for '/api/notes' endpoint - Notes Route
+// Create a get request for all `/api/notes` that logs when a user visits that route
 
 // GET = Read
 app.get("/api/notes", (req, res) => {
@@ -159,8 +165,6 @@ app.post("/api/notes", async (req, res) => {
     // Send the success response object back to client
     res.json(responseToClient);
   } else {
-    let newNote;
-
     // If the request body is missing one of the two required properties, send a 400 error back to the client
     res
       .status(400)
