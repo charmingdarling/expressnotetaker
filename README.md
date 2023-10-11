@@ -12,7 +12,7 @@ Our ultimate task was to merge the two entities to communicate with each other, 
 
 [Deployed-IO Link](https://charmingdarling.github.io/expressnotetaker/)
 
-[Heroku]()
+[Heroku](https://infinite-savannah-30259-fc34e0504aad.herokuapp.com/)
 
 ## User Story
 
